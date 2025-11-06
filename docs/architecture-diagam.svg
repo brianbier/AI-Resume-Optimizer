@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 400">
+  <!-- Styles -->
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="2" dy="2" stdDeviation="2" flood-opacity="0.1"/>
+    </filter>
+  </defs>
+
+  <!-- Title -->
+  <text x="500" y="50" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold">
+    Resume Optimization Crew
+  </text>
+
+  <!-- Column Headers -->
+  <g font-family="Arial, sans-serif" font-size="14" fill="#666" transform="translate(0, 80)">
+    <text x="100" y="80" text-anchor="middle">Input Sources</text>
+    <text x="300" y="80" text-anchor="middle">Analysis Agents</text>
+    <text x="500" y="80" text-anchor="middle">Structured Data</text>
+    <text x="700" y="80" text-anchor="middle">Report Generators</text>
+    <text x="900" y="80" text-anchor="middle">Output Files</text>
+  </g>
+
+  <!-- Vertical Section Lines -->
+  <g stroke="#ddd" stroke-dasharray="4,4" transform="translate(0, 80)">
+    <line x1="200" y1="70" x2="200" y2="330" />
+    <line x1="400" y1="70" x2="400" y2="330" />
+    <line x1="600" y1="70" x2="600" y2="330" />
+    <line x1="800" y1="70" x2="800" y2="330" />
+  </g>
+
+  <!-- Input Sources -->
+  <g transform="translate(0, 80)">
+    <rect x="40" y="110" width="120" height="40" rx="5" fill="#f8f9fa" stroke="#dee2e6" filter="url(#shadow)"/>
+    <rect x="40" y="170" width="120" height="40" rx="5" fill="#f8f9fa" stroke="#dee2e6" filter="url(#shadow)"/>
+    <rect x="40" y="230" width="120" height="40" rx="5" fill="#f8f9fa" stroke="#dee2e6" filter="url(#shadow)"/>
+    
+    <text x="100" y="135" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Resume PDF</text>
+    <text x="100" y="195" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Job URL</text>
+    <text x="100" y="255" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Company Name</text>
+  </g>
+
+  <!-- Analysis Agents -->
+  <g transform="translate(0, 80)">
+    <rect x="240" y="110" width="120" height="40" rx="5" fill="#f8f9fa" stroke="#dee2e6" filter="url(#shadow)"/>
+    <rect x="240" y="170" width="120" height="40" rx="5" fill="#f8f9fa" stroke="#dee2e6" filter="url(#shadow)"/>
+    <rect x="240" y="230" width="120" height="40" rx="5" fill="#f8f9fa" stroke="#dee2e6" filter="url(#shadow)"/>
+    
+    <text x="300" y="135" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Resume Analyzer</text>
+    <text x="300" y="195" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Job Analyzer</text>
+    <text x="300" y="255" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Company Researcher</text>
+  </g>
+
+  <!-- Structured Data -->
+  <g transform="translate(0, 80)">
+    <rect x="440" y="110" width="120" height="40" rx="5" fill="#f8f9fa" stroke="#dee2e6" filter="url(#shadow)"/>
+    <rect x="440" y="170" width="120" height="40" rx="5" fill="#f8f9fa" stroke="#dee2e6" filter="url(#shadow)"/>
+    <rect x="440" y="230" width="120" height="40" rx="5" fill="#f8f9fa" stroke="#dee2e6" filter="url(#shadow)"/>
+    
+    <text x="500" y="130" text-anchor="middle" font-family="Arial, sans-serif" font-size="11">resume_optimization</text>
+    <text x="500" y="145" text-anchor="middle" font-family="Arial, sans-serif" font-size="11">.json</text>
+    
+    <text x="500" y="190" text-anchor="middle" font-family="Arial, sans-serif" font-size="11">job_analysis</text>
+    <text x="500" y="205" text-anchor="middle" font-family="Arial, sans-serif" font-size="11">.json</text>
+    
+    <text x="500" y="250" text-anchor="middle" font-family="Arial, sans-serif" font-size="11">company_research</text>
+    <text x="500" y="265" text-anchor="middle" font-family="Arial, sans-serif" font-size="11">.json</text>
+  </g>
+
+  <!-- Report Generators -->
+  <g transform="translate(0, 80)">
+    <rect x="640" y="110" width="120" height="40" rx="5" fill="#f8f9fa" stroke="#dee2e6" filter="url(#shadow)"/>
+    <rect x="640" y="200" width="120" height="40" rx="5" fill="#f8f9fa" stroke="#dee2e6" filter="url(#shadow)"/>
+    
+    <text x="700" y="135" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Resume Writer</text>
+    <text x="700" y="225" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Report Generator</text>
+  </g>
+
+  <!-- Output Files -->
+  <g transform="translate(0, 80)">
+    <rect x="840" y="110" width="120" height="40" rx="5" fill="#f8f9fa" stroke="#dee2e6" filter="url(#shadow)"/>
+    <rect x="840" y="200" width="120" height="40" rx="5" fill="#f8f9fa" stroke="#dee2e6" filter="url(#shadow)"/>
+    
+    <text x="900" y="130" text-anchor="middle" font-family="Arial, sans-serif" font-size="11">optimized_resume</text>
+    <text x="900" y="145" text-anchor="middle" font-family="Arial, sans-serif" font-size="11">.md</text>
+    
+    <text x="900" y="220" text-anchor="middle" font-family="Arial, sans-serif" font-size="11">final_report</text>
+    <text x="900" y="235" text-anchor="middle" font-family="Arial, sans-serif" font-size="11">.md</text>
+  </g>
+
+  <!-- Connecting Lines -->
+  <g stroke="#adb5bd" fill="none" marker-end="url(#arrowhead)" transform="translate(0, 80)">
+    <!-- Input to Analysis -->
+    <path d="M160 130 H240" />
+    <path d="M160 190 H240" />
+    <path d="M160 250 H240" />
+    
+    <!-- Analysis to Data -->
+    <path d="M360 130 H440" />
+    <path d="M360 190 H440" />
+    <path d="M360 250 H440" />
+    
+    <!-- Data to Generators -->
+    <path d="M560 130 H640" />
+    <path d="M560 190 C600 190 600 220 640 220" />
+    <path d="M560 250 C600 250 600 220 640 220" />
+    
+    <!-- Generators to Output -->
+    <path d="M760 130 H840" />
+    <path d="M760 220 H840" />
+  </g>
+
+  <!-- Arrow Marker -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#adb5bd"/>
+    </marker>
+  </defs>
+</svg>
