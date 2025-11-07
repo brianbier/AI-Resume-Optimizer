@@ -50,30 +50,40 @@ analyze_job_task:
 
 optimize_resume_task:
   description: >
-    Review the provided resume against the job analysis and create structured optimization suggestions.
+    Review the provided resume against the job analysis and create SPECIFIC, ACTIONABLE optimization suggestions.
     Output will be saved as structured JSON data.
 
+    IMPORTANT: Be extremely specific and detailed in your suggestions. Don't be generic!
+
     1. Content Analysis:
-       - Compare resume content with job requirements
-       - Identify missing keywords and skills
-       - Analyze achievement descriptions
-       - Check for ATS compatibility
+       - Compare resume content with job requirements line by line
+       - Identify EXACT missing keywords and skills from the job posting
+       - Analyze achievement descriptions for impact and quantification
+       - Check for ATS compatibility issues
 
     2. Structure Review:
-       - Evaluate section organization
+       - Evaluate section organization and suggest specific improvements
        - Check formatting consistency
        - Assess information hierarchy
-       - Verify contact details
+       - Verify contact details completeness
 
-    3. Generate Suggestions:
-       - Content improvements with before/after examples
-       - Skills to highlight based on job match
-       - Achievements to add or modify
-       - ATS optimization recommendations
+    3. Generate SPECIFIC Suggestions:
+       - Content improvements with DETAILED before/after examples
+       - EXACT skills to highlight based on job match (use job posting language)
+       - SPECIFIC achievements to add or modify with quantifiable metrics
+       - CONCRETE ATS optimization recommendations with examples
+       - Use actual text from the resume and job posting in your suggestions
+
+    QUALITY REQUIREMENTS:
+    - Each suggestion must be specific enough to implement immediately
+    - Include exact wording and phrasing recommendations
+    - Reference specific sections and bullet points from the resume
+    - Provide context for WHY each change improves the match
 
   expected_output: >
-    Structured JSON data containing detailed optimization suggestions according to
-    the ResumeOptimization model schema.
+    Structured JSON data containing DETAILED, SPECIFIC optimization suggestions according to
+    the ResumeOptimization model schema. Each suggestion must be actionable and include
+    concrete examples.
   agent: resume_analyzer
   context: [analyze_job_task]
 
@@ -103,80 +113,125 @@ research_company_task:
 generate_resume_task:
   description: >
     Using the optimization suggestions and job analysis from previous steps, 
-    create a polished resume in markdown format.
+    create a HIGHLY POLISHED, PROFESSIONAL resume in markdown format.
     Do not add markdown code blocks like '```'.
 
+    CRITICAL: This resume must be ready to submit immediately. Make it exceptional!
+
     1. Content Integration:
-       - Incorporate optimization suggestions
-       - Add missing keywords and skills
-       - Enhance achievement descriptions
-       - Ensure ATS compatibility
+       - Incorporate ALL optimization suggestions from the previous analysis
+       - Add EXACT missing keywords and skills identified in the job analysis
+       - Enhance achievement descriptions with QUANTIFIABLE metrics and impact
+       - Ensure perfect ATS compatibility (use job posting keywords naturally)
+       - Mirror the language and terminology from the job posting
 
-    2. Formatting:
-       - Use proper markdown headers (#, ##, ###)
-       - Apply consistent styling
-       - Create clear section hierarchy
-       - Use bullet points effectively
+    2. Professional Formatting:
+       - Use proper markdown headers (#, ##, ###) for clear hierarchy
+       - Apply consistent, professional styling throughout
+       - Create clear section hierarchy (Contact → Summary → Experience → Skills → Education)
+       - Use bullet points effectively with strong action verbs
+       - Ensure visual balance and readability
 
-    3. Documentation:
-       - Track changes made
-       - Note preserved elements
-       - Explain optimization choices
+    3. Content Quality:
+       - Start each bullet with powerful action verbs (Led, Developed, Achieved, etc.)
+       - Include specific metrics and quantifiable results (%, $, numbers)
+       - Highlight relevant accomplishments that match job requirements
+       - Use industry-standard terminology
+       - Keep language concise and impactful
+
+    4. Documentation Section (at the end):
+       - List all major changes made
+       - Explain key optimization choices
+       - Note which job requirements are now addressed
+
+    QUALITY STANDARDS:
+    - Professional tone throughout
+    - No typos or grammatical errors
+    - Consistent formatting and style
+    - ATS-friendly structure
+    - Compelling and achievement-focused
 
   expected_output: >
-    A beautifully formatted markdown resume document that:
-    - Incorporates all optimization suggestions
-    - Uses proper markdown formatting
-    - Is ATS-friendly
-    - Documents all changes made
+    A beautifully formatted, professional-grade markdown resume document that:
+    - Incorporates ALL optimization suggestions with high quality
+    - Uses proper markdown formatting consistently
+    - Is fully ATS-optimized with job-specific keywords
+    - Documents all changes made in a summary section
+    - Is ready to submit immediately without further editing
   agent: resume_writer
   context: [optimize_resume_task, analyze_job_task, research_company_task]
 
 generate_report_task:
   description: >
-    Create an executive summary report using data from previous steps. 
+    Create a COMPREHENSIVE, VISUALLY APPEALING executive summary report using data from previous steps. 
     Format in markdown without code blocks '```'.
 
+    GOAL: Create a report that is both informative and easy to scan quickly.
+
     1. Data Integration:
-       - Job analysis and scores
-       - Resume optimization details
-       - Company research insights
-       - Final resume changes
+       - Job analysis and scores with specific percentages
+       - Resume optimization details with concrete examples
+       - Company research insights with actionable intelligence
+       - Final resume changes with impact assessment
 
-    2. Report Sections:
-       ## Executive Summary
-       - Overall match score and quick wins
-       - Key strengths and improvement areas
-       - Action items priority list
+    2. Report Sections (MUST INCLUDE ALL):
+       
+       ## 📊 Executive Summary
+       - Overall match score with visual indicator (e.g., "88% Match ⭐⭐⭐⭐")
+       - Top 3 quick wins (specific, actionable items)
+       - Top 3 key strengths (with evidence)
+       - Top 3 improvement areas (with specific actions)
+       - Priority action items (numbered list)
 
-       ## Job Fit Analysis
-       - Detailed score breakdown
-       - Skills match assessment
-       - Experience alignment
+       ## 🎯 Job Fit Analysis
+       - Detailed score breakdown (use table format)
+       - Skills match assessment (specific skills listed)
+       - Experience alignment (years, relevance, gaps)
+       - Education and certification match
 
-       ## Optimization Overview
-       - Key resume improvements
-       - ATS optimization results
-       - Impact metrics
+       ## ✨ Optimization Overview
+       - Key resume improvements (before/after examples)
+       - ATS optimization results (keywords added, formatting fixes)
+       - Impact metrics (estimated improvement in match score)
+       - Most impactful changes (ranked by importance)
 
-       ## Company Insights
-       - Culture fit analysis
-       - Interview preparation tips
-       - Key talking points
+       ## 🏢 Company Insights
+       - Company culture fit analysis
+       - Recent company news and developments
+       - Interview preparation tips (specific questions to prepare)
+       - Key talking points (align your experience with company needs)
+       - Red flags or concerns to address
 
-       ## Next Steps
-       - Prioritized action items
-       - Skill development plan
-       - Application strategy
+       ## 🚀 Next Steps
+       - Immediate actions (do today)
+       - Short-term actions (do this week)
+       - Long-term development (skill gaps to address)
+       - Application strategy (when to apply, how to follow up)
+       - Interview preparation checklist
 
-    3. Formatting:
-       - Use proper markdown headers
-       - Include relevant emojis
-       - Create tables where appropriate
+    3. Formatting Requirements:
+       - Use proper markdown headers (##, ###)
+       - Include relevant emojis for visual appeal
+       - Create tables for score breakdowns
        - Use bullet points for scannability
+       - Bold important numbers and percentages
+       - Use blockquotes for key insights
+       - Add horizontal rules (---) between major sections
+
+    QUALITY STANDARDS:
+    - Be specific and actionable (no generic advice)
+    - Include actual data and numbers from the analysis
+    - Make it visually scannable (someone should understand it in 2 minutes)
+    - Provide concrete next steps, not vague suggestions
+    - Use professional but engaging language
 
   expected_output: >
-    A comprehensive markdown report that combines all analyses into an
-    actionable, clear document with concrete next steps.
+    A comprehensive, visually appealing markdown report that:
+    - Combines all analyses into a cohesive narrative
+    - Is easy to scan and understand quickly
+    - Provides concrete, actionable next steps
+    - Includes specific data, scores, and examples
+    - Uses professional formatting with visual elements
+    - Serves as a complete guide for the job application process
   agent: report_generator
   context: [analyze_job_task, optimize_resume_task, research_company_task]
