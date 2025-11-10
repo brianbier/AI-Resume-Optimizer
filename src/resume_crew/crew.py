@@ -24,25 +24,42 @@ class ResumeCrew():
             import os
             current_dir = os.getcwd()
             
+            # Verify the file exists before creating PDFKnowledgeSource
+            full_path = os.path.join('knowledge', resume_path) if not os.path.sep in resume_path else resume_path
+            if not os.path.exists(full_path):
+                raise FileNotFoundError(f"Resume file not found: {full_path}")
+            
             # If resume_path is just a filename, it should be in knowledge/
             if not os.path.sep in resume_path:
                 # It's just a filename, PDFKnowledgeSource will look in knowledge/
+                print(f"[ResumeCrew] Loading resume: {resume_path}")
                 self.resume_pdf = PDFKnowledgeSource(file_paths=resume_path)
             else:
                 # It's a full path, use it directly
+                print(f"[ResumeCrew] Loading resume from full path: {resume_path}")
                 self.resume_pdf = PDFKnowledgeSource(file_paths=resume_path)
-        else:
-            # Fallback - find any PDF in knowledge directory
-            import os
-            if os.path.exists("knowledge"):
-                pdf_files = [f for f in os.listdir("knowledge") if f.endswith('.pdf')]
-                if pdf_files:
-                    # Use the first PDF found
-                    self.resume_pdf = PDFKnowledgeSource(file_paths=pdf_files[0])
-                else:
-                    raise FileNotFoundError("No PDF files found in knowledge directory")
-            else:
-                raise FileNotFoundError("Knowledge directory not found and no resume_path provided")
+        # else:
+        #     # Fallback - find uploaded resume files first, then any PDF
+        #     import os
+        #     if os.path.exists("knowledge"):
+        #         # Prioritize uploaded resume files
+        #         pdf_files = [f for f in os.listdir("knowledge") 
+        #                    if f.endswith('.pdf') and not f.startswith('.')]
+                
+        #         # Sort to get uploaded_resume files first
+        #         uploaded_files = [f for f in pdf_files if f.startswith('uploaded_resume_')]
+        #         other_files = [f for f in pdf_files if not f.startswith('uploaded_resume_')]
+                
+        #         pdf_files = uploaded_files + other_files
+                
+        #         if pdf_files:
+        #             # Use the first PDF found (prioritizing uploaded ones)
+        #             print(f"[ResumeCrew] No resume_path provided, using: {pdf_files[0]}")
+        #             self.resume_pdf = PDFKnowledgeSource(file_paths=pdf_files[0])
+        #         else:
+        #             raise FileNotFoundError("No PDF files found in knowledge directory")
+        #     else:
+        #         raise FileNotFoundError("Knowledge directory not found and no resume_path provided")
 
     @agent
     def resume_analyzer(self) -> Agent:
