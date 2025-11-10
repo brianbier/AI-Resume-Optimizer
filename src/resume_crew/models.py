@@ -202,17 +202,22 @@ class ResumeOptimization(BaseModel):
 
 class CompanyResearch(BaseModel):
     recent_developments: List[str] = Field(
-        description="List of recent company news and developments"
+        description="List of recent company news and developments",
+        default_factory=list
     )
     culture_and_values: List[str] = Field(
-        description="Key points about company culture and values"
+        description="Key points about company culture and values",
+        default_factory=list
     )
     market_position: Dict[str, List[str]] = Field(
-        description="Information about market position, including competitors and industry standing"
+        description="Information about market position, including competitors and industry standing",
+        default_factory=dict
     )
     growth_trajectory: List[str] = Field(
-        description="Information about company's growth and future plans"
+        description="Information about company's growth and future plans",
+        default_factory=list
     )
     interview_questions: List[str] = Field(
-        description="Strategic questions to ask during the interview"
+        description="Strategic questions to ask during the interview",
+        default_factory=list
     )
