@@ -4,8 +4,12 @@ import os
 import json
 from pathlib import Path
 import time
+from dotenv import load_dotenv
 from src.resume_crew.crew import ResumeCrew
 from src.resume_crew.models import JobRequirements, ResumeOptimization, CompanyResearch
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Page config
 st.set_page_config(
@@ -53,24 +57,69 @@ st.markdown("""
 def main():
     st.markdown('<h1 class="main-header">📄 AI Resume Optimizer</h1>', unsafe_allow_html=True)
     st.markdown("**Optimize your resume for any job posting using AI-powered analysis**")
+
+    # FORCE ChromaDB cleanup on every app startup
+    if 'app_initialized' not in st.session_state:
+        st.session_state.app_initialized = True
+        # Clean vector database immediately on startup (silent)
+        cleanup_crewai_cache()
+
+    # Initialize session state for tracking processed resumes
+    if 'processed_resume_hash' not in st.session_state:
+        st.session_state.processed_resume_hash = None
+    if 'analysis_count' not in st.session_state:
+        st.session_state.analysis_count = 0
     
     # Sidebar for inputs
     with st.sidebar:
         st.header("📋 Input Requirements")
         
-        # API Key input
+        # Check for API keys in environment variables
+        env_openai_key = os.getenv('OPENAI_API_KEY')
+        env_serper_key = os.getenv('SERPER_API_KEY')
+        
+        # Show status of environment variables
+        if env_openai_key and env_serper_key:
+            st.success("✅ API keys loaded from .env file")
+            with st.expander("🔑 API Key Status"):
+                st.write("✅ OpenAI API Key: Loaded from .env")
+                st.write("✅ Serper API Key: Loaded from .env")
+                st.info("💡 You can override these by entering keys below")
+        elif env_openai_key or env_serper_key:
+            st.warning("⚠️ Some API keys found in .env")
+            with st.expander("🔑 API Key Status"):
+                if env_openai_key:
+                    st.write("✅ OpenAI API Key: Loaded from .env")
+                else:
+                    st.write("❌ OpenAI API Key: Not in .env")
+                if env_serper_key:
+                    st.write("✅ Serper API Key: Loaded from .env")
+                else:
+                    st.write("❌ Serper API Key: Not in .env")
+        else:
+            st.info("ℹ️ No API keys in .env file - enter them below")
+        
+        # API Key input (optional if in .env)
         openai_api_key = st.text_input(
-            "OpenAI API Key",
+            "OpenAI API Key" + (" (Optional - using .env)" if env_openai_key else " (Required)"),
             type="password",
-            help="Your OpenAI API key for AI analysis"
+            value="",
+            help="Your OpenAI API key for AI analysis. Leave empty to use .env file.",
+            placeholder="sk-..." if not env_openai_key else "Using .env key..."
         )
         
-        # Serper API Key input
+        # Serper API Key input (optional if in .env)
         serper_api_key = st.text_input(
-            "Serper API Key", 
+            "Serper API Key" + (" (Optional - using .env)" if env_serper_key else " (Required)"), 
             type="password",
-            help="Your Serper API key for web search (company research)"
+            value="",
+            help="Your Serper API key for web search. Leave empty to use .env file.",
+            placeholder="..." if not env_serper_key else "Using .env key..."
         )
+        
+        # Use environment variables if UI fields are empty
+        final_openai_key = openai_api_key or env_openai_key
+        final_serper_key = serper_api_key or env_serper_key
         
         # Resume upload
         uploaded_resume = st.file_uploader(
@@ -100,10 +149,10 @@ def main():
             help="Name of the company you're applying to"
         )
         
-        # Validation
+        # Validation - check final resolved keys, not UI inputs
         inputs_valid = all([
-            openai_api_key,
-            serper_api_key, 
+            final_openai_key,  # Check resolved key (UI or env)
+            final_serper_key,  # Check resolved key (UI or env)
             uploaded_resume,
             job_url,
             company_name
@@ -112,32 +161,69 @@ def main():
         if inputs_valid:
             st.success("✅ All inputs provided!")
         else:
-            st.warning("⚠️ Please fill all required fields")
+            # Show which fields are missing
+            missing = []
+            if not final_openai_key:
+                missing.append("OpenAI API Key")
+            if not final_serper_key:
+                missing.append("Serper API Key")
+            if not uploaded_resume:
+                missing.append("Resume PDF")
+            if not job_url:
+                missing.append("Job URL")
+            if not company_name:
+                missing.append("Company Name")
+            
+            st.warning(f"⚠️ Missing: {', '.join(missing)}")
         
-        # Add a reset button for troubleshooting
+        # Add reset buttons for troubleshooting
         st.markdown("---")
-        if st.button("🔄 Clear Cache & Reset", help="Use this if you encounter errors"):
-            cleanup_previous_files()
-            cleanup_output_files() 
-            cleanup_crewai_cache()
-            st.success("✅ Cache cleared! Try running the analysis again.")
+        col1, col2 = st.columns(2)
+
+        with col1:
+            if st.button("🔄 Clear Cache", help="Clear all cache and temporary files"):
+                cleanup_previous_files()
+                cleanup_output_files()
+                cleanup_crewai_cache()
+                st.success("Cache cleared!")
+
+        with col2:
+            if st.button("🧹 Clear Results", help="Hide current results from display"):
+                st.session_state.results_available = False
+                st.success("Results cleared!")
     
     # Main content area
     if inputs_valid:
         # Initialize session state
         if 'processing' not in st.session_state:
             st.session_state.processing = False
-        
+        if 'results_available' not in st.session_state:
+            st.session_state.results_available = False
+
         # Disable button during processing
         button_disabled = st.session_state.processing
         button_text = "⏳ Processing..." if button_disabled else "🚀 Optimize Resume"
-        
+
         if st.button(button_text, type="primary", use_container_width=True, disabled=button_disabled):
             st.session_state.processing = True
+            st.session_state.results_available = False  # Reset results
             try:
-                optimize_resume(openai_api_key, serper_api_key, uploaded_resume, job_url, company_name)
+                optimize_resume(final_openai_key, final_serper_key, uploaded_resume, job_url, company_name)
+                st.session_state.results_available = True  # Set results available after successful completion
+            except Exception as e:
+                st.error(f"❌ Error during analysis: {str(e)}")
+                st.session_state.results_available = False
             finally:
                 st.session_state.processing = False
+
+    # Display results if available (separate from the button logic)
+    if st.session_state.get('results_available', False):
+        # Check if output files actually exist
+        if os.path.exists('output') and any(os.path.exists(f'output/{f}') for f in
+            ['job_analysis.json', 'resume_optimization.json', 'company_research.json', 'optimized_resume.md', 'final_report.md']):
+            display_results()
+        else:
+            st.session_state.results_available = False  # Reset if files don't exist
     else:
         st.info("👈 Please provide all required inputs in the sidebar to get started")
         
@@ -184,37 +270,74 @@ def cleanup_previous_files(exclude_file=None):
                     pass  # File might be in use, ignore
 
 def cleanup_crewai_cache():
-    """Clean up CrewAI cache and temporary files - AGGRESSIVE MODE"""
+    """Clean up CrewAI cache and temporary files - ULTRA AGGRESSIVE MODE"""
     import shutil
     import glob
-    
+    import gc
+    import sys
+
     # All possible cache and database locations
     cache_dirs = [
         '.crewai',
         '__pycache__',
         '.chroma',              # ChromaDB vector database - THIS IS KEY!
         'chroma_db',            # Alternative ChromaDB location
+        'chromadb',             # Another possible location
         'src/__pycache__',
         'src/resume_crew/__pycache__',
         '.streamlit/cache',
-        '.cache'
+        '.cache',
+        'knowledge/.chroma',    # ChromaDB might create here
+        'output/.chroma'        # Or here
     ]
-    
-    # Also find any .db files (SQLite databases used by ChromaDB)
-    db_files = glob.glob('**/*.db', recursive=True)
-    db_files.extend(glob.glob('**/*.sqlite', recursive=True))
-    db_files.extend(glob.glob('**/*.sqlite3', recursive=True))
-    
+
+    # Find ALL database and vector store files
+    db_patterns = [
+        '**/*.db', '**/*.sqlite', '**/*.sqlite3',
+        '**/*.parquet',  # ChromaDB uses parquet files
+        '**/*.pkl', '**/*.pickle',  # Potential pickle caches
+        '**/chroma-*'  # ChromaDB temp files
+    ]
+
+    db_files = []
+    for pattern in db_patterns:
+        db_files.extend(glob.glob(pattern, recursive=True))
+
     cleaned = []
-    
+
+    # Clear Python module caches related to ChromaDB/CrewAI
+    modules_to_clear = [name for name in sys.modules.keys()
+                       if any(keyword in name.lower() for keyword in
+                             ['chroma', 'crewai', 'knowledge', 'vector'])]
+
+    for module_name in modules_to_clear:
+        if module_name in sys.modules:
+            try:
+                del sys.modules[module_name]
+                cleaned.append(f"module:{module_name}")
+            except:
+                pass
+
+    # Remove cache directories
     for cache_dir in cache_dirs:
         if os.path.exists(cache_dir):
             try:
                 shutil.rmtree(cache_dir)
                 cleaned.append(cache_dir)
             except OSError as e:
-                pass  # Directory might be in use, ignore
-    
+                # Try individual file deletion if directory deletion fails
+                try:
+                    for root, dirs, files in os.walk(cache_dir):
+                        for file in files:
+                            try:
+                                os.remove(os.path.join(root, file))
+                            except:
+                                pass
+                    shutil.rmtree(cache_dir)
+                    cleaned.append(f"{cache_dir}(forced)")
+                except:
+                    pass
+
     # Remove database files
     for db_file in db_files:
         if 'venv' not in db_file and '.venv' not in db_file:  # Don't delete venv files
@@ -223,10 +346,23 @@ def cleanup_crewai_cache():
                 cleaned.append(db_file)
             except OSError:
                 pass
-    
+
+    # Force multiple garbage collections with different strategies
+    for _ in range(3):
+        gc.collect()
+
+    # Clear any lingering ChromaDB client instances
+    try:
+        import chromadb
+        # Force close any existing clients
+        if hasattr(chromadb, '_clients'):
+            chromadb._clients.clear()
+    except:
+        pass
+
     if cleaned:
-        print(f"🧹 Cleaned {len(cleaned)} cache locations")
-    
+        print(f"🧹 Cleaned {len(cleaned)} cache locations and modules")
+
     return len(cleaned)
 
 def cleanup_output_files():
@@ -270,9 +406,7 @@ def optimize_resume(openai_api_key, serper_api_key, uploaded_resume, job_url, co
     try:
         # FIRST: Clean vector database BEFORE doing anything
         status_text.text("🗑️ Clearing vector database from previous runs...")
-        cleaned = cleanup_crewai_cache()
-        if cleaned > 0:
-            st.info(f"✅ Cleared {cleaned} cache locations to prevent duplicate ID errors")
+        cleanup_crewai_cache()
         
         # Ensure directories exist
         os.makedirs('knowledge', exist_ok=True)
@@ -281,8 +415,14 @@ def optimize_resume(openai_api_key, serper_api_key, uploaded_resume, job_url, co
         # Create unique filename using timestamp and hash
         import hashlib
         file_hash = hashlib.md5(uploaded_resume.getvalue()).hexdigest()[:8]
+
+        # With aggressive cleanup, we can now handle different resumes
         resume_filename = f"uploaded_resume_{int(time.time())}_{file_hash}.pdf"
         resume_path = os.path.join('knowledge', resume_filename)
+
+        # Store the hash for tracking (but don't block different resumes)
+        st.session_state.processed_resume_hash = file_hash
+        st.session_state.analysis_count += 1
         
         status_text.text("📄 Saving uploaded resume...")
         
@@ -292,34 +432,17 @@ def optimize_resume(openai_api_key, serper_api_key, uploaded_resume, job_url, co
             if not file_content:
                 raise ValueError("Uploaded file is empty")
             
-            # Show what we're doing
-            st.info(f"💾 Saving to: {resume_path}")
-            
-            # Save the file FIRST
+            # Save the file
             with open(resume_path, 'wb') as f:
-                bytes_written = f.write(file_content)
-            
+                f.write(file_content)
+
             # Verify file exists and has content
             if not os.path.exists(resume_path):
                 raise FileNotFoundError(f"Failed to save resume to {resume_path}")
-            
+
             file_size = os.path.getsize(resume_path)
             if file_size == 0:
                 raise ValueError("Saved file is empty")
-            
-            # Show absolute path for debugging
-            abs_path = os.path.abspath(resume_path)
-            st.success(f"✅ Resume saved successfully!")
-            st.write(f"📍 Location: {abs_path}")
-            st.write(f"📊 Size: {file_size:,} bytes ({file_size/1024:.1f} KB)")
-            
-            # Verify we can read it back
-            with open(resume_path, 'rb') as f:
-                verify_content = f.read()
-            if len(verify_content) != file_size:
-                raise ValueError("File verification failed - size mismatch")
-            
-            st.success("✅ File verified and ready for processing")
             
         except Exception as save_error:
             st.error(f"❌ Failed to save resume: {save_error}")
@@ -344,8 +467,12 @@ def optimize_resume(openai_api_key, serper_api_key, uploaded_resume, job_url, co
             raise FileNotFoundError(f"Resume file disappeared: {resume_path}")
         
         try:
+            # Force Python garbage collection to clear any cached objects
+            import gc
+            gc.collect()
+
+            # Create a completely new crew instance
             crew_instance = ResumeCrew(resume_path=resume_filename)
-            st.success("✅ AI crew initialized successfully")
         except Exception as init_error:
             st.error(f"Failed to initialize AI crew: {init_error}")
             st.error("This might be a file path issue. Please try again.")
@@ -383,21 +510,35 @@ def optimize_resume(openai_api_key, serper_api_key, uploaded_resume, job_url, co
         status_text.text("📊 Generating results...")
         progress_bar.progress(80)
         time.sleep(0.5)
-        
-        # Display results in the results container
-        with results_container:
-            display_results()
-        
+
         progress_bar.progress(100)
         status_text.text("✅ Analysis complete!")
-        
+
         # Success message
         st.balloons()
         st.success("🎉 Resume optimization completed successfully!")
+
+        # Clear the progress indicators
+        progress_bar.empty()
+        status_text.empty()
         
-        # Keep the file for now (don't delete immediately)
-        # User can manually clean up later if needed
-        st.info(f"📁 Resume file saved at: {resume_path}")
+        # Show what user can do next
+        st.markdown("---")
+        st.markdown("### 🎯 What's Next?")
+        
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.success("✅ **Same Resume, Different Job?**")
+            st.write("Just change the job URL and company name above, then click 'Optimize Resume' again!")
+            st.write("No restart needed! 🚀")
+
+        with col2:
+            st.success("✅ **Different Resume?**")
+            st.write("Upload a new resume and analyze directly!")
+            st.write("Auto-cleanup enabled - no restart needed! 🎉")
+            st.write("Vector database clears automatically.")
+        
         # if os.path.exists(resume_path):
         #     os.unlink(resume_path)
         
@@ -427,41 +568,14 @@ def display_results():
         return
     
     # Create tabs for better organization
-    tab1, tab2, tab3, tab4, tab5 = st.tabs([
-        "📊 Job Match", "✨ Optimization", "🏢 Company Intel", 
-        "📋 Summary", "📄 New Resume"
+    tab1, tab2, tab3, tab4 = st.tabs([
+        "📋 Summary", "✨ Optimization",
+        "📄 New Resume", "🏢 Company Insights"
     ])
-    
+
     try:
-        # Job Analysis Tab
+        # Tab 1: Summary (Final Report)
         with tab1:
-            if os.path.exists('output/job_analysis.json'):
-                with open('output/job_analysis.json', 'r', encoding='utf-8') as f:
-                    job_analysis = json.load(f)
-                display_job_analysis(job_analysis)
-            else:
-                st.info("Job analysis results not available.")
-        
-        # Resume Optimization Tab
-        with tab2:
-            if os.path.exists('output/resume_optimization.json'):
-                with open('output/resume_optimization.json', 'r', encoding='utf-8') as f:
-                    resume_opt = json.load(f)
-                display_resume_optimization(resume_opt)
-            else:
-                st.info("Resume optimization results not available.")
-        
-        # Company Research Tab
-        with tab3:
-            if os.path.exists('output/company_research.json'):
-                with open('output/company_research.json', 'r', encoding='utf-8') as f:
-                    company_research = json.load(f)
-                display_company_research(company_research)
-            else:
-                st.info("Company research results not available.")
-        
-        # Final Report Tab
-        with tab4:
             if os.path.exists('output/final_report.md'):
                 with open('output/final_report.md', 'r', encoding='utf-8') as f:
                     final_report = f.read()
@@ -469,14 +583,32 @@ def display_results():
             else:
                 st.info("Final report not available.")
         
-        # Optimized Resume Tab
-        with tab5:
+        # Tab 2: Optimization Suggestions
+        with tab2:
+            if os.path.exists('output/resume_optimization.json'):
+                with open('output/resume_optimization.json', 'r', encoding='utf-8') as f:
+                    resume_opt = json.load(f)
+                display_resume_optimization(resume_opt)
+            else:
+                st.info("Resume optimization results not available.")
+
+        # Tab 3: New Resume
+        with tab3:
             if os.path.exists('output/optimized_resume.md'):
                 with open('output/optimized_resume.md', 'r', encoding='utf-8') as f:
                     optimized_resume = f.read()
                 display_optimized_resume(optimized_resume)
             else:
                 st.info("Optimized resume not available.")
+
+        # Tab 4: Company Insights
+        with tab4:
+            if os.path.exists('output/company_research.json'):
+                with open('output/company_research.json', 'r', encoding='utf-8') as f:
+                    company_research = json.load(f)
+                display_company_research(company_research)
+            else:
+                st.info("Company research results not available.")
                 
     except Exception as e:
         st.error(f"Error loading results: {str(e)}")
@@ -487,36 +619,127 @@ def display_job_analysis(job_analysis):
     
     st.subheader("🎯 Job Match Analysis")
     
-    # Overall match score
+    # Job Title and Basic Info
+    if job_analysis.get('job_title'):
+        st.markdown(f"### {job_analysis['job_title']}")
+        
+        info_cols = st.columns(3)
+        with info_cols[0]:
+            if job_analysis.get('job_level'):
+                st.write(f"**Level:** {job_analysis['job_level']}")
+        with info_cols[1]:
+            if job_analysis.get('location_requirements'):
+                loc = job_analysis['location_requirements']
+                if isinstance(loc, dict):
+                    location = loc.get('city', 'Not specified')
+                    st.write(f"**Location:** {location}")
+        with info_cols[2]:
+            if job_analysis.get('compensation'):
+                comp = job_analysis['compensation']
+                if isinstance(comp, dict) and comp.get('base_salary'):
+                    st.write(f"**Salary:** {comp['base_salary']}")
+        
+        st.markdown("---")
+    
+    # Overall match score with visual indicator
     if 'match_score' in job_analysis:
         match_score = job_analysis['match_score']
-        overall_match = match_score.get('overall_match', 0)
+        overall_match = match_score.get('overall_match', 0)  # Already in percentage format
         
-        col1, col2, col3, col4 = st.columns(4)
+        # Visual match indicator
+        if overall_match >= 80:
+            match_emoji = "🟢 Excellent Match"
+            match_color = "green"
+        elif overall_match >= 60:
+            match_emoji = "🟡 Good Match"
+            match_color = "orange"
+        else:
+            match_emoji = "🔴 Needs Improvement"
+            match_color = "red"
+        
+        st.markdown(f"### {match_emoji}")
+        
+        # Score metrics - values are already percentages
+        col1, col2, col3, col4, col5 = st.columns(5)
         
         with col1:
-            st.metric("Overall Match", f"{overall_match:.0f}%")
+            st.metric("Overall Match", f"{overall_match:.1f}%")
         with col2:
-            st.metric("Technical Skills", f"{match_score.get('technical_skills_match', 0):.0f}%")
+            tech_score = match_score.get('technical_skills_match', 0)
+            st.metric("Technical Skills", f"{tech_score:.1f}%")
         with col3:
-            st.metric("Experience", f"{match_score.get('experience_match', 0):.0f}%")
+            exp_score = match_score.get('experience_match', 0)
+            st.metric("Experience", f"{exp_score:.1f}%")
         with col4:
-            st.metric("Education", f"{match_score.get('education_match', 0):.0f}%")
+            edu_score = match_score.get('education_match', 0)
+            st.metric("Education", f"{edu_score:.1f}%")
+        with col5:
+            ind_score = match_score.get('industry_match', 0)
+            st.metric("Industry", f"{ind_score:.1f}%")
+        
+        st.markdown("---")
+        
+        # Strengths and Gaps
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            if match_score.get('strengths'):
+                st.markdown("### ✅ Your Strengths")
+                for strength in match_score['strengths']:
+                    st.success(f"✓ {strength}")
+        
+        with col2:
+            if match_score.get('gaps'):
+                st.markdown("### ⚠️ Areas to Address")
+                for gap in match_score['gaps']:
+                    st.warning(f"• {gap}")
+        
+        st.markdown("---")
     
-    # Job requirements
-    col1, col2 = st.columns(2)
-    
-    with col1:
+    # Job requirements in expandable sections
+    with st.expander("📋 Technical Skills Required", expanded=False):
         if job_analysis.get('technical_skills'):
-            st.write("**Technical Skills Required:**")
-            for skill in job_analysis['technical_skills']:
-                st.write(f"• {skill}")
+            skills_per_row = 3
+            skills = job_analysis['technical_skills']
+            for i in range(0, len(skills), skills_per_row):
+                cols = st.columns(skills_per_row)
+                for j, col in enumerate(cols):
+                    if i + j < len(skills):
+                        col.write(f"• {skills[i + j]}")
+        else:
+            st.info("No technical skills specified")
     
-    with col2:
+    with st.expander("💬 Soft Skills Required", expanded=False):
         if job_analysis.get('soft_skills'):
-            st.write("**Soft Skills Required:**")
             for skill in job_analysis['soft_skills']:
                 st.write(f"• {skill}")
+        else:
+            st.info("No soft skills specified")
+    
+    with st.expander("🎯 Key Responsibilities", expanded=False):
+        if job_analysis.get('key_responsibilities'):
+            for i, resp in enumerate(job_analysis['key_responsibilities'], 1):
+                st.write(f"{i}. {resp}")
+        else:
+            st.info("No responsibilities specified")
+    
+    with st.expander("🎓 Education & Experience Requirements", expanded=False):
+        col1, col2 = st.columns(2)
+        with col1:
+            st.write("**Education:**")
+            if job_analysis.get('education_requirements'):
+                for req in job_analysis['education_requirements']:
+                    st.write(f"• {req}")
+            else:
+                st.info("Not specified")
+        
+        with col2:
+            st.write("**Experience:**")
+            if job_analysis.get('experience_requirements'):
+                for req in job_analysis['experience_requirements']:
+                    st.write(f"• {req}")
+            else:
+                st.info("Not specified")
 
 def display_resume_optimization(resume_opt):
     """Display resume optimization suggestions"""
@@ -526,35 +749,68 @@ def display_resume_optimization(resume_opt):
     # Content suggestions
     if resume_opt.get('content_suggestions'):
         st.write("**Content Improvements:**")
-        for suggestion in resume_opt['content_suggestions']:
-            with st.expander(f"📝 {suggestion.get('section', 'Section')}"):
-                st.write("**Before:**")
-                st.write(suggestion.get('before', ''))
-                st.write("**After:**")
-                st.write(suggestion.get('after', ''))
-                if 'rationale' in suggestion:
-                    st.write("**Why:**")
-                    st.write(suggestion['rationale'])
+        for i, suggestion in enumerate(resume_opt['content_suggestions'], 1):
+            # Handle multiple JSON structures
+            if isinstance(suggestion, dict):
+                if 'suggestion' in suggestion:
+                    # Current structure: just has 'suggestion' field
+                    with st.expander(f"📝 Suggestion {i}: {suggestion.get('section', 'General Improvement')}"):
+                        st.write(suggestion['suggestion'])
+                        if 'original_text' in suggestion:
+                            st.write("**Original Text:**")
+                            st.code(suggestion['original_text'])
+                elif 'before' in suggestion or 'after' in suggestion:
+                    # Old structure with before/after
+                    with st.expander(f"📝 {suggestion.get('section', f'Suggestion {i}')}"):
+                        if 'before' in suggestion:
+                            st.write("**Before:**")
+                            st.write(suggestion.get('before', ''))
+                        if 'after' in suggestion:
+                            st.write("**After:**")
+                            st.write(suggestion.get('after', ''))
+                        if 'rationale' in suggestion:
+                            st.write("**Why:**")
+                            st.write(suggestion['rationale'])
+                else:
+                    # Fallback: display whatever content is available
+                    with st.expander(f"📝 Suggestion {i}"):
+                        for key, value in suggestion.items():
+                            if key != 'section':
+                                st.write(f"**{key.title()}:** {value}")
+            else:
+                # If suggestion is just a string
+                with st.expander(f"📝 Suggestion {i}"):
+                    st.write(suggestion)
     
-    # Skills to highlight
+    # Additional suggestions in grid layout
     col1, col2 = st.columns(2)
-    
+
     with col1:
         if resume_opt.get('skills_to_highlight'):
             st.write("**Skills to Highlight:**")
             for skill in resume_opt['skills_to_highlight']:
                 st.write(f"• {skill}")
-    
+
+        if resume_opt.get('achievements_to_add'):
+            st.write("**Achievements to Add:**")
+            for achievement in resume_opt['achievements_to_add']:
+                st.write(f"• {achievement}")
+
     with col2:
         if resume_opt.get('keywords_for_ats'):
             st.write("**ATS Keywords:**")
             for keyword in resume_opt['keywords_for_ats']:
                 st.write(f"• {keyword}")
 
+        if resume_opt.get('formatting_suggestions'):
+            st.write("**Formatting Improvements:**")
+            for formatting in resume_opt['formatting_suggestions']:
+                st.write(f"• {formatting}")
+
 def display_company_research(company_research):
     """Display company research results"""
     
-    st.subheader("🏢 Company Intelligence")
+    st.subheader("🏢 Company Insights")
     
     col1, col2 = st.columns(2)
     
@@ -586,16 +842,22 @@ def display_optimized_resume(optimized_resume):
     
     st.subheader("📄 Your Optimized Resume")
     
-    # Download button
+    # Download button with unique key to prevent page reset
+    import time
+    unique_key = f"download_resume_{int(time.time())}"
     st.download_button(
         label="📥 Download Optimized Resume",
         data=optimized_resume,
         file_name="optimized_resume.md",
-        mime="text/markdown"
+        mime="text/markdown",
+        key=unique_key,
+        help="Download your optimized resume in Markdown format"
     )
     
+    st.info("💡 Tip: You can convert this Markdown file to PDF using online tools or Markdown editors")
+    
     # Display preview
-    with st.expander("👀 Preview Optimized Resume"):
+    with st.expander("👀 Preview Optimized Resume", expanded=True):
         st.markdown(optimized_resume)
 
 if __name__ == "__main__":
