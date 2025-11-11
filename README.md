@@ -1,293 +1,191 @@
-# 📄 AI Resume Optimizer
+# 🚀 AI Resume Optimizer
 
+**Transform your resume into a job-winning document in 3 minutes.**
 
-An intelligent system that analyzes job postings, evaluates your resume, and generates a perfectly tailored version optimized for both ATS systems and human recruiters. Built with [CrewAI](https://crewai.com) and powered by multiple specialized AI agents.
+Upload your resume, paste any job posting URL, and get a perfectly tailored resume optimized for both ATS systems and human recruiters.
 
----
-
-## 🚀 Try It Now - No Installation Required! (No Storage required API Keys are not Stored)
-
-**[👉 Click Here to Use the Resume Optimizer](https://ai-agent-resume-optimizer.streamlit.app/)**
-
-### ⚠️ Important Security Notice
-- **You'll enter your own API keys each time you use the app**
-- **No data is stored on our servers** - your resume and API keys remain private
-- **Keys are only used during your session** and are discarded when you close the browser
-
-*This approach ensures maximum security and privacy for your sensitive information.*
+![Main Interface](public/main-interface.png)
 
 ---
 
-## 📖 What This Tool Does
+## ⚡ Quick Start (2 Minutes Setup)
 
-### 🎯 **For Job Seekers**
-Transform your generic resume into a laser-focused, job-specific document that gets you interviews.
-
-### 💼 **The Process**
-1. **Upload** your current resume (PDF format)
-2. **Paste** the job posting URL you're targeting
-3. **Enter** the company name
-4. **Get** a complete analysis and optimized resume in minutes
-
-### ✨ **What You Receive**
-- **📊 Detailed Analysis**: How well your resume matches the job requirements
-- **🎯 Specific Suggestions**: Exactly what to change and why
-- **📄 Optimized Resume**: A completely rewritten, job-tailored version ready to submit
-- **🏢 Company Insights**: Research and talking points for your interview
-
-### 🔄 **Before vs After Example**
-```
-BEFORE: "Software Engineer with experience in programming"
-AFTER:  "AI & Automation Engineer with 7+ years developing machine learning models and data pipelines, specializing in Python and enterprise AI frameworks"
-```
-
----
-
-## 🔑 API Keys Required
-
-To use this tool, you'll need two API keys (don't worry, we'll show you exactly where to get them):
-
-### 1. **OpenAI API Key**
-- **What it does**: Powers the AI agents that analyze and optimize your resume
-- **Where to get it**: [OpenAI Platform](https://platform.openai.com/api-keys)
-- **Cost**: Typically $0.50-2.00 per resume optimization
-- **Format**: Starts with `sk-proj-...`
-
-### 2. **Serper API Key**
-- **What it does**: Researches company information for interview preparation
-- **Where to get it**: [Serper.dev](https://serper.dev/api-key)
-- **Cost**: Free tier available (2,500 searches/month)
-- **Format**: 32-character string
-
-### 💰 **Expected Costs**
-- Most users spend **less than $2** per resume optimization
-- Company research is typically **free** (within Serper's free tier)
-- You only pay for what you use - no subscriptions required
-
----
-
-## 📱 Screenshots & Usage Guide
-
-<!-- Add your screenshots in these sections -->
-
-### 1. **Main Interface**
-![Alt Text](public/main-interface.png "Main Interface")
-
-### 3. **Complete all fields and click Optimize Resume**
-![Alt Text](public/fields-completed.png "Fields Completed")
-
-### 4. **Analysis Results**
-![Alt Text](public/summary-report.png "Summary Report")
-
-![Alt Text](public/job-fit.png "Summary Report")
-
-
----
-
-## 💻 Run Locally (Advanced Users)
-
-Want to run this privately on your own machine? Here's how:
-
-### **Prerequisites**
-- Python 3.10, 3.11, or 3.12
-- Git (for cloning the repository)
-- 2GB free disk space
-
-### **Step-by-Step Installation**
-
-1. **Clone and Navigate**
-   ```bash
-   git clone https://github.com/tonykipkemboi/resume-optimization-crew.git
-   cd resume-optimization-crew
-   ```
-
-2. **Create Virtual Environment**
-   ```bash
-   # On Windows
-   python -m venv .venv
-   .venv\Scripts\activate
-
-   # On Mac/Linux
-   python3 -m venv .venv
-   source .venv/bin/activate
-   ```
-
-3. **Install Dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Set Up Environment Variables** (Optional)
-   ```bash
-   # Copy example file
-   cp .env.example .env
-
-   # Edit .env file and add your API keys
-   # This lets you skip entering keys in the UI every time
-   ```
-
-5. **Run the Application**
-   ```bash
-   streamlit run streamlit_app.py
-   ```
-
-6. **Access the App**
-   - Open your browser to `http://localhost:8501`
-   - Upload your resume and start optimizing!
-
-### **Alternative: Command Line Interface**
-For developers who prefer command-line tools:
+### 1. **Download & Install**
 ```bash
-crewai run
+# Clone the project
+git clone https://github.com/yourusername/resume-optimization-crew.git
+cd resume-optimization-crew
+
+# Install Python dependencies
+pip install -r requirements.txt
+
+# Start the app (cleans cache automatically)
+python3 start.py
 ```
+
+**Why use `start.py`?** It automatically cleans ChromaDB cache to prevent conflicts when switching between different resumes. Much easier than manual cleanup!
+
+### 2. **Get Your API Keys** (Free/Cheap)
+- **OpenAI**: [Get key here](https://platform.openai.com/api-keys) (~$1 per resume)
+- **Serper**: [Get key here](https://serper.dev/api-key) (Free for 2,500 searches)
+
+### 3. **Use the App**
+1. Open `http://localhost:8501` (opens automatically)
+2. Enter your API keys in the sidebar
+3. Upload your resume PDF
+4. Paste the job posting URL
+5. Click "Optimize Resume" ✨
+
+**That's it!** You'll get a complete analysis and optimized resume in 2-3 minutes.
+
+---
+
+## 🎯 What You Get
+
+### 📊 **Complete Analysis**
+- **Match score** between your resume and job requirements
+- **Skills gap analysis** - what's missing vs what you have
+- **ATS optimization** - keywords and formatting suggestions
+
+### 📄 **New Optimized Resume**
+- **Completely rewritten** to match the job
+- **ATS-friendly** formatting and keywords
+- **Downloadable** in Markdown format (convert to PDF easily)
+
+### 🏢 **Company Intelligence**
+- **Recent company news** for interview talking points
+- **Company culture insights** to tailor your approach
+- **Strategic interview questions** to ask
+
+### 💡 **Before vs After Example**
+```
+BEFORE: "Software Engineer with programming experience"
+
+AFTER:  "Senior Full-Stack Developer with 5+ years building
+         scalable web applications using React, Node.js, and
+         AWS, specializing in microservices architecture"
+```
+
+---
+
+## 💰 Costs (Very Affordable)
+
+| Service | Cost | What It's For |
+|---------|------|---------------|
+| **OpenAI** | ~$1-2 per resume | AI analysis & writing |
+| **Serper** | Free (2,500/month) | Company research |
+| **Total** | **~$1-2 per job application** | Complete optimization |
+
+*Most users spend less than $2 per optimized resume. No monthly subscriptions.*
+
+---
+
+## 🔄 Using for Multiple Jobs
+
+### **Same Resume, Different Jobs**
+- Just change the job URL and company name
+- Click "Optimize Resume" again
+- No restart needed!
+
+### **Different Resume Files**
+1. Stop the app (`Ctrl+C`)
+2. Run `python3 start.py` again
+3. Upload new resume
+
+💡 **Why restart?** The `start.py` script automatically cleans ChromaDB cache, preventing memory conflicts between different resumes. Without this cleanup, the app might mix data from your previous resume with the new one.
+
+---
+
+## 🛠️ Troubleshooting
+
+### **Common Issues & Quick Fixes**
+
+| Problem | Quick Fix |
+|---------|-----------|
+| **"Invalid API key"** | Copy the full key exactly from the website |
+| **"ChromaDB error"** | Restart with `python3 start.py` |
+| **"File upload failed"** | Ensure PDF is under 200MB and text-readable |
+| **"No results"** | Check that job URL is public and accessible |
+| **App won't start** | Run `pip install streamlit` |
+
+### **Need Help?**
+1. Check your API keys are correctly copied
+2. Ensure your resume PDF contains readable text (not just images)
+3. Verify the job URL loads in your browser
+4. Try restarting the app with `python3 start.py`
 
 ---
 
 ## 🔒 Privacy & Security
 
-### **🛡️ Your Data Security**
-- **Resume files**: Processed locally, deleted after analysis
-- **API keys**: Never stored, only used during your session
-- **Job URLs**: Only used to fetch public job posting data
-- **Results**: Generated fresh each time, not cached
+### **Your Data Stays Private**
+- ✅ **Runs locally** - everything happens on your computer
+- ✅ **No cloud storage** - files are deleted after analysis
+- ✅ **API keys not saved** - enter fresh each session
+- ✅ **No tracking** - your usage is completely private
 
-### **🌐 Cloud vs Local**
-- **Streamlit Cloud**: Convenient but data passes through our servers temporarily
-- **Local Installation**: Maximum privacy - everything runs on your machine
-- **Recommendation**: Use local installation for highly sensitive positions
-
-### **🔐 API Key Best Practices**
+### **API Key Safety**
 - Never share your API keys with anyone
-- Regenerate keys if you suspect they've been compromised
-- Monitor your OpenAI usage dashboard for unexpected charges
+- Keys are only sent to OpenAI/Serper for processing
+- Regenerate keys if compromised
+- Monitor usage on OpenAI dashboard
 
 ---
 
-## ❓ Frequently Asked Questions
+## 📋 Requirements
 
-### **💸 How much does this cost to use?**
-- The app itself is free
-- You pay only for API usage: typically $0.50-2.00 per resume optimization
-- Serper offers 2,500 free searches per month for company research
-
-### **🕒 How long does it take?**
-- Complete analysis: 2-3 minutes
-- Most of this time is the AI carefully analyzing the job requirements and optimizing your resume
-
-### **📁 What file formats are supported?**
-- Resume upload: PDF only
-- Output: Markdown (.md) format that you can easily convert to PDF
-
-### **🔄 Can I use different resumes?**
-- Yes! Upload different resumes for different jobs
-- The app automatically clears previous data
-
-### **📞 What if I need help?**
-- Check this README for common issues
-- Review your API key setup if you get errors
-- Make sure your PDF resume is readable (not scanned image)
-
-### **🚫 Common Issues**
-- **"Invalid API key"**: Check that your key is copied correctly
-- **"File upload failed"**: Ensure your resume is a PDF under 200MB
-- **"No results"**: Verify the job URL is accessible and contains job details
+- **Python 3.10+** (check with `python3 --version`)
+- **2GB free space** for dependencies
+- **Internet connection** for AI processing
+- **PDF resume** (text-readable, not scanned image)
 
 ---
 
-## 🛠️ For Developers
+## ❓ FAQ
 
-### **🏗️ Architecture Overview**
-This system uses CrewAI to orchestrate multiple specialized AI agents:
+**Q: How much does this cost?**
+A: ~$1-2 per resume. OpenAI charges for AI usage, Serper is free.
 
-![Resume Optimization System Architecture](docs/architecture-diagam.svg)
+**Q: How long does it take?**
+A: 2-3 minutes for complete analysis and optimization.
 
-1. **Job Analyzer Agent**: Scrapes and analyzes job postings using `ScrapeWebsiteTool`
-2. **Resume Analyzer Agent**: Processes PDF resumes using `PDFKnowledgeSource`
-3. **Company Researcher Agent**: Gathers company intelligence using `SerperDevTool`
-4. **Resume Writer Agent**: Generates optimized resumes based on analysis
-5. **Report Generator Agent**: Creates comprehensive analysis reports
+**Q: What if I don't have API keys?**
+A: Get them free/cheap from the links above. Takes 2 minutes.
 
-### **🔧 Key Technologies**
-- **CrewAI**: Multi-agent orchestration framework
-- **Streamlit**: Web application framework
-- **OpenAI GPT-4**: Large language model for analysis and generation
-- **ChromaDB**: Vector database for resume content indexing
-- **Pydantic**: Data validation and settings management
+**Q: Can I use this offline?**
+A: No, it needs internet to connect to AI services.
 
-### **📂 Project Structure**
-```
-resume-optimization-crew/
-├── src/resume_crew/           # Core CrewAI implementation
-│   ├── crew.py               # Agent and task definitions
-│   ├── models.py             # Pydantic data models
-│   └── config/               # YAML configuration files
-├── streamlit_app.py          # Web interface
-├── knowledge/                # PDF resume storage
-├── output/                   # Generated analysis files
-└── requirements.txt          # Python dependencies
-```
+**Q: What file formats work?**
+A: PDF resumes only. Output is Markdown (easily convert to PDF).
 
-### **🧪 Local Development**
-```bash
-# Run tests
-python test_env_loading.py
-
-# Debug mode
-streamlit run streamlit_app.py --logger.level debug
-
-# Clear all caches
-rm -rf .chroma __pycache__ src/__pycache__
-```
-
-### **🤝 Contributing**
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
-
-### **📋 Development Requirements**
-- Python >= 3.10, < 3.13 (CrewAI requirement)
-- All dependencies in `requirements.txt`
-- OpenAI and Serper API keys for testing
+**Q: Is my resume data safe?**
+A: Yes, everything runs locally. No data is stored anywhere.
 
 ---
 
-## 📞 Support & Community
+## 🏗️ Technical Details
 
-### **📚 Documentation**
-- [CrewAI Documentation](https://docs.crewai.com)
-- [Streamlit Documentation](https://docs.streamlit.io)
-- [OpenAI API Documentation](https://platform.openai.com/docs)
+**Built with:**
+- **CrewAI** - Multi-agent AI framework
+- **Streamlit** - Web interface
+- **OpenAI GPT-4** - Resume analysis and optimization
+- **ChromaDB** - Vector database for resume processing
 
-### **💬 Community**
-- [CrewAI Community Forum](https://community.crewai.com)
-- [Report Issues](https://github.com/yourusername/resume-optimization-crew/issues)
-
-### **🔗 Useful Links**
-- [Get OpenAI API Key](https://platform.openai.com/api-keys)
-- [Get Serper API Key](https://serper.dev/api-key)
-- [Markdown to PDF Converter](https://www.markdowntopdf.com/)
+**Architecture:** Multiple specialized AI agents work together to analyze job requirements, evaluate your resume, research the company, and generate optimized content.
 
 ---
 
-## 🙏 Credits & Attribution
+## 🙏 Credits
 
-### **Original Creator**
-This project builds upon the excellent foundation created by **[Tony Kipkemboi](https://github.com/tonykipkemboi)**.
+**Original Creator:** [Tony Kipkemboi](https://github.com/tonykipkemboi/resume-optimization-crew)
 
-**🔗 Original Repository:** [resume-optimization-crew](https://github.com/tonykipkemboi/resume-optimization-crew)
-
-
-### **Enhancements Added**
-- 🖥️ **Streamlit Web Interface**: User-friendly web app for non-technical users
-- 🧹 **Auto-Cleanup System**: Solved ChromaDB caching issues for seamless resume switching
-- 📊 **Enhanced Results Display**: Organized tabs with comprehensive optimization suggestions
-- 🔒 **Security Improvements**: Session-based API key handling with no data storage
-- 📱 **Mobile-Responsive Design**: Works perfectly on all devices
-- 📚 **Comprehensive Documentation**: Detailed setup guides for all skill levels
-
+**Enhancements Added:**
+- 🖥️ **User-friendly Streamlit interface**
+- 🧹 **Automatic cache cleanup** for seamless operation
+- 📊 **Enhanced results display** with organized tabs
+- 🔒 **Local-only operation** for maximum privacy
+- 📚 **Simplified setup** with one-command start
 
 ---
 
-*Built with ❤️ using CrewAI - Helping job seekers land their dream roles through AI-powered resume optimization.*
+**Ready to get more interviews?** ⬆️ [Jump to Quick Start](#-quick-start-2-minutes-setup)
