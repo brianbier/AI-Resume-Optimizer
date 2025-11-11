@@ -4,12 +4,11 @@ import os
 import json
 from pathlib import Path
 import time
-from dotenv import load_dotenv
 from src.resume_crew.crew import ResumeCrew
 from src.resume_crew.models import JobRequirements, ResumeOptimization, CompanyResearch
 
-# Load environment variables from .env file
-load_dotenv()
+# Note: Removed load_dotenv() to force users to enter their own API keys
+# This prevents using deployed secrets and ensures each user provides their own keys
 
 # Page config
 st.set_page_config(
@@ -74,52 +73,30 @@ def main():
     with st.sidebar:
         st.header("📋 Input Requirements")
         
-        # Check for API keys in environment variables
-        env_openai_key = os.getenv('OPENAI_API_KEY')
-        env_serper_key = os.getenv('SERPER_API_KEY')
+        # Note: No longer checking for environment variables to force manual key entry
+        # This ensures each user must provide their own API keys
+        st.info("🔑 Please enter your API keys below to get started")
         
-        # Show status of environment variables
-        if env_openai_key and env_serper_key:
-            st.success("✅ API keys loaded from .env file")
-            with st.expander("🔑 API Key Status"):
-                st.write("✅ OpenAI API Key: Loaded from .env")
-                st.write("✅ Serper API Key: Loaded from .env")
-                st.info("💡 You can override these by entering keys below")
-        elif env_openai_key or env_serper_key:
-            st.warning("⚠️ Some API keys found in .env")
-            with st.expander("🔑 API Key Status"):
-                if env_openai_key:
-                    st.write("✅ OpenAI API Key: Loaded from .env")
-                else:
-                    st.write("❌ OpenAI API Key: Not in .env")
-                if env_serper_key:
-                    st.write("✅ Serper API Key: Loaded from .env")
-                else:
-                    st.write("❌ Serper API Key: Not in .env")
-        else:
-            st.info("ℹ️ No API keys in .env file - enter them below")
-        
-        # API Key input (optional if in .env)
+        # API Key inputs - now required for each session
         openai_api_key = st.text_input(
-            "OpenAI API Key" + (" (Optional - using .env)" if env_openai_key else " (Required)"),
+            "OpenAI API Key (Required)",
             type="password",
             value="",
-            help="Your OpenAI API key for AI analysis. Leave empty to use .env file.",
-            placeholder="sk-..." if not env_openai_key else "Using .env key..."
+            help="Your OpenAI API key for AI analysis. Required for each session.",
+            placeholder="sk-..."
         )
-        
-        # Serper API Key input (optional if in .env)
+
         serper_api_key = st.text_input(
-            "Serper API Key" + (" (Optional - using .env)" if env_serper_key else " (Required)"), 
+            "Serper API Key (Required)",
             type="password",
             value="",
-            help="Your Serper API key for web search. Leave empty to use .env file.",
-            placeholder="..." if not env_serper_key else "Using .env key..."
+            help="Your Serper API key for web search. Required for each session.",
+            placeholder="..."
         )
-        
-        # Use environment variables if UI fields are empty
-        final_openai_key = openai_api_key or env_openai_key
-        final_serper_key = serper_api_key or env_serper_key
+
+        # Use only the manually entered keys
+        final_openai_key = openai_api_key
+        final_serper_key = serper_api_key
         
         # Resume upload
         uploaded_resume = st.file_uploader(
